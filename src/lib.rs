@@ -8,6 +8,8 @@ use std::time::Duration;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
 
+pub mod keymap;
+
 pub(crate) static EVENT_TIMEOUT: Duration = Duration::from_millis(1000);
 pub type TerminalResult<T> = std::result::Result<T, Box<dyn Error>>;
 
