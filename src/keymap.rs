@@ -13,10 +13,6 @@ impl Keybind {
     }
 }
 
-pub fn key_match(ev: &KeyEvent, binding: &Keybind) -> bool {
-    ev.code == binding.code && ev.modifiers == binding.modifiers
-}
-
 impl PartialEq for Keybind {
     fn eq(&self, other: &Self) -> bool {
         let ev: KeyEvent = self.into();
@@ -29,4 +25,8 @@ impl From<&Keybind> for KeyEvent {
     fn from(other: &Keybind) -> Self {
         Self::new(other.code, other.modifiers)
     }
+}
+
+pub fn key_match(ev: &KeyEvent, binding: &Keybind) -> bool {
+    ev.code == binding.code && ev.modifiers == binding.modifiers
 }
