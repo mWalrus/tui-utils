@@ -19,11 +19,13 @@ impl Dim for Block<'static> {
     }
 }
 
+/// Construct a block with a bold border and title
 pub fn bold_block(title: &'static str, border_fg: Color) -> Block {
     let border_style = Style::default().fg(border_fg).add_modifier(Modifier::BOLD);
     block_constructor(title, Some(border_style), Some(Borders::ALL))
 }
 
+/// Construct a block with a border and title
 pub fn default_block(title: &'static str, border_fg: Color) -> Block {
     let border_style = Style::default().fg(border_fg);
     block_constructor(title, Some(border_style), Some(Borders::ALL))

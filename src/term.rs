@@ -31,7 +31,9 @@ pub fn restore_terminal() -> TerminalResult<()> {
     Ok(())
 }
 
-/// Poll for crossterm events such as key events
+/// Poll for crossterm events such as key events. This blocks the current
+/// thread for 1 second before timeout'ing, letting the application
+/// continue execution.
 pub fn poll_event() -> TerminalResult<Option<Event>> {
     if event::poll(EVENT_TIMEOUT)? {
         Ok(Some(event::read()?))
