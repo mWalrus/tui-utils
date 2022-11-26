@@ -10,7 +10,7 @@ use tui::Terminal;
 
 #[derive(Error, Debug)]
 pub enum TermError {
-    #[error("polling failed: {0}")]
+    #[error("event polling failed: {0}")]
     Poll(String),
     #[error("failed to restore terminal: {0}")]
     Restore(String),
