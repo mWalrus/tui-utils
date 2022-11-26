@@ -5,6 +5,7 @@ pub mod component;
 pub mod keymap;
 pub mod rect;
 pub mod split;
+pub mod style;
 pub mod term;
 
 /// Used for event polling with crossterm
