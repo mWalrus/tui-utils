@@ -43,6 +43,19 @@ impl BoundedState {
         }
     }
 
+    /// Creates a new `BoundedState` with a selection. This selection is bounds checked and
+    /// will fail to be set if detected out of bounds.
+    pub fn with_selection(
+        lower: usize,
+        upper: usize,
+        wrap: Option<Wrap>,
+        sel: usize,
+    ) -> Result<Self, StateError> {
+        let mut state = Self::new(lower, upper, wrap);
+        state.select(sel)?;
+        Ok(state)
+    }
+
     /// Retrieve a mutable reference to the inner `ListState`. This is useful for when you need to
     /// use the `ListState` for drawing a stateful widget.
     pub fn inner(&mut self) -> &mut ListState {
@@ -110,6 +123,7 @@ impl BoundedState {
         if selection > self.upper || selection < self.lower {
             Err(StateError::OutOfBounds).unwrap()
         }
+        self.inner.select(Some(selection));
         Ok(())
     }
 }
