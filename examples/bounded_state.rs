@@ -79,9 +79,6 @@ impl Component for View {
 }
 
 fn main() {
-    // init the terminal
-    let mut terminal = term::init().unwrap();
-
     // dummy data for the list
     let items = vec![
         "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Item 7", "Item 8", "Item 9",
@@ -93,13 +90,25 @@ fn main() {
     // take the upper bounds before moving `items` into `view`
     let upper_bounds = items.len() - 1;
 
+    // since selections can fail the bounds check that happens before
+    // setting the selection, we have to handle the error.
+    let state = match BoundedState::with_selection(0, upper_bounds, None, 0) {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("{e}");
+            return;
+        }
+    };
+
     let view = View {
         items,
-        // set wrap to `None` which uses the default `Wrap::Enable`
-        state: BoundedState::with_selection(0, upper_bounds, None, 0).unwrap(),
+        state,
         binds: KeyBinds::new(),
     };
     let mut app = App { view };
+
+    // init the terminal
+    let mut terminal = term::init().unwrap();
 
     loop {
         // draw the ui first
