@@ -38,7 +38,7 @@ pub fn init() -> Result<Terminal<CrosstermBackend<io::Stdout>>, TermError> {
 // Restore the terminal and print an error
 pub fn restore_with_err(e: Box<dyn Error>) -> Result<(), TermError> {
     restore()?;
-    eprintln!("{e}");
+    eprintln!("Application error: {e}");
     Ok(())
 }
 

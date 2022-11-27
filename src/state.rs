@@ -3,8 +3,8 @@ use tui::widgets::ListState;
 
 #[derive(Error, Debug)]
 pub enum StateError {
-    #[error("failed to set selection, out of bounds")]
-    OutOfBounds,
+    #[error("state selection not within boundary range {0}..{1} (is: {2})")]
+    OutOfBounds(usize, usize, usize),
 }
 
 /// A wrapper around `ListState` which can be provided boundaries.
@@ -121,7 +121,7 @@ impl BoundedState {
     /// Set a selection. This will error if the selection provided is out of bounds.
     pub fn select(&mut self, selection: usize) -> Result<(), StateError> {
         if selection > self.upper || selection < self.lower {
-            Err(StateError::OutOfBounds).unwrap()
+            return Err(StateError::OutOfBounds(self.lower, self.upper, selection));
         }
         self.inner.select(Some(selection));
         Ok(())
