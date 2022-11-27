@@ -1,4 +1,5 @@
-use anyhow::Result;
+use std::error::Error;
+
 use crossterm::event::KeyEvent;
 use tui::{backend::Backend, Frame};
 
@@ -12,7 +13,13 @@ pub trait Component {
     /// Take care of any input handling here. This method is not
     /// required when implementing `Component` in case your component
     /// does not require input handling.
-    fn handle_input(&mut self, _key: KeyEvent) -> Result<()> {
-        Ok(())
+    fn handle_input(&mut self, _key: KeyEvent) -> Result<Focus, Box<dyn Error>> {
+        Ok(Focus::Keep)
     }
+}
+
+/// Dictate the focus state of the current component
+pub enum Focus {
+    Release,
+    Keep,
 }
