@@ -43,10 +43,10 @@ impl BoundedState {
         }
     }
 
-    /// Retrieve the inner `ListState`. This is useful for when you need to
+    /// Retrieve a mutable reference to the inner `ListState`. This is useful for when you need to
     /// use the `ListState` for drawing a stateful widget.
-    pub fn inner(&self) -> ListState {
-        self.inner.clone()
+    pub fn inner(&mut self) -> &mut ListState {
+        &mut self.inner
     }
 
     /// Take one step "forwards".
@@ -69,8 +69,10 @@ impl BoundedState {
                     Wrap::Disable => self.lower,
                 };
 
-                if i.saturating_sub(n) <= self.lower {
+                if i == self.lower {
                     wrap_outcome
+                } else if i.saturating_sub(n) <= self.lower {
+                    self.lower
                 } else {
                     self.lower.max(i.saturating_sub(n))
                 }
@@ -90,8 +92,10 @@ impl BoundedState {
                     Wrap::Disable => self.upper,
                 };
 
-                if i.saturating_add(n) >= self.upper {
+                if i == self.upper {
                     wrap_outcome
+                } else if i.saturating_add(n) >= self.upper {
+                    self.upper
                 } else {
                     self.upper.min(i.saturating_add(n))
                 }
