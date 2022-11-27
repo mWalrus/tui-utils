@@ -1,6 +1,5 @@
-use std::error::Error;
-
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use std::error::Error;
 use tui::{style::Color, widgets::Paragraph};
 use tui_utils::{
     blocks,
@@ -9,6 +8,29 @@ use tui_utils::{
     split::{self, Ratio},
     term,
 };
+
+// example of how to define keybinds
+struct KeyBinds {
+    quit: Keybind,
+    // add more here
+}
+
+impl KeyBinds {
+    fn new() -> Self {
+        Self {
+            // simple quit bind
+            quit: Keybind {
+                code: KeyCode::Esc,
+                modifiers: KeyModifiers::empty(),
+            },
+        }
+    }
+}
+
+// example application struct
+struct App {
+    split: Split,
+}
 
 struct Split {
     text_left: String,
@@ -45,30 +67,10 @@ impl Component for Split {
     }
 }
 
-struct App {
-    split: Split,
-}
-
-struct KeyBinds {
-    quit: Keybind,
-}
-
-impl KeyBinds {
-    fn new() -> Self {
-        Self {
-            quit: Keybind {
-                code: KeyCode::Esc,
-                modifiers: KeyModifiers::empty(),
-            },
-        }
-    }
-}
-
 fn main() {
     // init the terminal
     let mut terminal = term::init().unwrap();
 
-    // example application component
     let split = Split {
         text_left: String::from("left side"),
         text_right: String::from("right side"),
