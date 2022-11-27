@@ -3,6 +3,7 @@ use crossterm::event::{self, Event};
 use crossterm::terminal::{
     disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
 };
+use std::error::Error;
 use std::io;
 use thiserror::Error;
 use tui::backend::CrosstermBackend;
@@ -19,7 +20,7 @@ pub enum TermError {
 }
 
 /// Prepare the terminal by flushing the screen and hiding the cursor
-pub fn init_terminal() -> Result<Terminal<CrosstermBackend<io::Stdout>>, TermError> {
+pub fn init() -> Result<Terminal<CrosstermBackend<io::Stdout>>, TermError> {
     crossterm::execute!(io::stdout(), EnterAlternateScreen)
         .map_err(|e| TermError::Init(e.to_string()))?;
     enable_raw_mode().map_err(|e| TermError::Init(e.to_string()))?;
@@ -34,8 +35,15 @@ pub fn init_terminal() -> Result<Terminal<CrosstermBackend<io::Stdout>>, TermErr
     Ok(terminal)
 }
 
+// Restore the terminal and print an error
+pub fn restore_with_err(e: Box<dyn Error>) -> Result<(), TermError> {
+    restore()?;
+    eprintln!("{e}");
+    Ok(())
+}
+
 /// Restore the terminal to its initial state
-pub fn restore_terminal() -> Result<(), TermError> {
+pub fn restore() -> Result<(), TermError> {
     disable_raw_mode().map_err(|e| TermError::Restore(e.to_string()))?;
     crossterm::execute!(io::stdout(), LeaveAlternateScreen)
         .map_err(|e| TermError::Restore(e.to_string()))?;
