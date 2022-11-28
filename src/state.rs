@@ -24,18 +24,18 @@ impl<T> From<&Vec<T>> for Boundary {
 pub struct BoundedState {
     inner: ListState,
     boundary: Boundary,
-    wrap: Wrap,
+    wrap: StateWrap,
 }
 
 /// This is used in combination with `BoundedState` to dictate whether
 /// stepping should wrap around to the start when reaching boundaries.
 #[derive(PartialEq, Eq)]
-pub enum Wrap {
+pub enum StateWrap {
     Enable,
     Disable,
 }
 
-impl Default for Wrap {
+impl Default for StateWrap {
     fn default() -> Self {
         Self::Enable
     }
@@ -43,11 +43,11 @@ impl Default for Wrap {
 
 impl BoundedState {
     /// Creates a `BoundedState` with boundaries and optional wrapping configuration
-    pub fn new(boundary: Boundary, wrap: Option<Wrap>) -> Self {
+    pub fn new(boundary: Boundary, wrap: StateWrap) -> Self {
         Self {
             inner: ListState::default(),
             boundary,
-            wrap: wrap.unwrap_or_default(),
+            wrap,
         }
     }
 
@@ -55,7 +55,7 @@ impl BoundedState {
     /// will fail to be set if detected out of bounds.
     pub fn with_selection(
         boundary: Boundary,
-        wrap: Option<Wrap>,
+        wrap: StateWrap,
         sel: usize,
     ) -> Result<Self, StateError> {
         let mut state = Self::new(boundary, wrap);
@@ -85,8 +85,8 @@ impl BoundedState {
             Some(i) => {
                 // define what happens when reaching boundary
                 let wrap_outcome = match self.wrap {
-                    Wrap::Enable => self.boundary.1,
-                    Wrap::Disable => self.boundary.0,
+                    StateWrap::Enable => self.boundary.1,
+                    StateWrap::Disable => self.boundary.0,
                 };
 
                 if i == self.boundary.0 {
@@ -108,8 +108,8 @@ impl BoundedState {
             Some(i) => {
                 // define what happens when reaching boundary
                 let wrap_outcome = match self.wrap {
-                    Wrap::Enable => self.boundary.0,
-                    Wrap::Disable => self.boundary.1,
+                    StateWrap::Enable => self.boundary.0,
+                    StateWrap::Disable => self.boundary.1,
                 };
 
                 if i == self.boundary.1 {
