@@ -7,7 +7,7 @@ use tui::{
 use tui_utils::{
     blocks,
     component::{Component, Focus},
-    keymap::{key_match, Keybind},
+    keys::{key_match, Keybind},
     state::{Boundary, BoundedState, StateWrap},
     style, term, LIST_HIGHLIGHT_SYMBOL,
 };

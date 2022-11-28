@@ -2,7 +2,7 @@ use std::time::Duration;
 
 pub mod blocks;
 pub mod component;
-pub mod keymap;
+pub mod keys;
 pub mod rect;
 pub mod split;
 pub mod state;

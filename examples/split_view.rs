@@ -4,7 +4,7 @@ use tui::{style::Color, widgets::Paragraph};
 use tui_utils::{
     blocks,
     component::{Component, Focus},
-    keymap::{key_match, Keybind},
+    keys::{key_match, Keybind},
     split::{self, Ratio},
     term,
 };
