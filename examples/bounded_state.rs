@@ -8,7 +8,7 @@ use tui_utils::{
     blocks,
     component::{Component, Focus},
     keymap::{key_match, Keybind},
-    state::{Boundary, BoundedState},
+    state::{Boundary, BoundedState, StateWrap},
     style, term, LIST_HIGHLIGHT_SYMBOL,
 };
 
@@ -17,6 +17,7 @@ struct KeyBinds {
     quit: Keybind,
     up: Keybind,
     down: Keybind,
+    add: Keybind,
     // add more here
 }
 
@@ -34,6 +35,10 @@ impl KeyBinds {
             },
             down: Keybind {
                 code: KeyCode::Down,
+                modifiers: KeyModifiers::empty(),
+            },
+            add: Keybind {
+                code: KeyCode::Enter,
                 modifiers: KeyModifiers::empty(),
             },
         }
@@ -73,6 +78,11 @@ impl Component for View {
             self.state.prev();
         } else if key_match(&key, &self.binds.down) {
             self.state.next();
+        } else if key_match(&key, &self.binds.add) {
+            // add a new item to the `items` member
+            self.items.push("New Item");
+            // update the boundary accordingly
+            self.state.update_boundary_from_vec(&self.items);
         }
         Ok(Focus::Keep)
     }
@@ -92,7 +102,7 @@ fn main() {
 
     // since selections can fail the bounds check that happens before
     // setting the selection, we have to handle the error.
-    let state = match BoundedState::with_selection(boundary, None, 0) {
+    let state = match BoundedState::with_selection(boundary, StateWrap::Enable, 0) {
         Ok(s) => s,
         Err(e) => {
             eprintln!("{e}");
