@@ -3,18 +3,27 @@ use tui::widgets::ListState;
 
 #[derive(Error, Debug)]
 pub enum StateError {
-    #[error("state selection not within boundary range {0}..{1} (is: {2})")]
-    OutOfBounds(usize, usize, usize),
+    #[error("state selection not within boundary range {}..{} (is: {})", bounds.0, bounds.1, actual)]
+    OutOfBounds { bounds: Boundary, actual: usize },
 }
 
-/// A wrapper around `ListState` which can be provided boundaries.
+/// Define a boundary which is to be used with `BoundedState`
+#[derive(Debug, Copy, Clone)]
+pub struct Boundary(usize, usize);
+
+impl<T> From<&Vec<T>> for Boundary {
+    fn from(s: &Vec<T>) -> Self {
+        Self(0, s.len() - 1)
+    }
+}
+
+/// A wrapper around `ListState` which can be provided a boundary.
 /// When the selection of inner reaches the defined boundaries, we
 /// can choose whether we should wrap around to the other end of
 /// the stack using the `Wrap` enum.
 pub struct BoundedState {
     inner: ListState,
-    lower: usize,
-    upper: usize,
+    boundary: Boundary,
     wrap: Wrap,
 }
 
@@ -34,11 +43,10 @@ impl Default for Wrap {
 
 impl BoundedState {
     /// Creates a `BoundedState` with boundaries and optional wrapping configuration
-    pub fn new(lower: usize, upper: usize, wrap: Option<Wrap>) -> Self {
+    pub fn new(boundary: Boundary, wrap: Option<Wrap>) -> Self {
         Self {
             inner: ListState::default(),
-            lower,
-            upper,
+            boundary,
             wrap: wrap.unwrap_or_default(),
         }
     }
@@ -46,12 +54,11 @@ impl BoundedState {
     /// Creates a new `BoundedState` with a selection. This selection is bounds checked and
     /// will fail to be set if detected out of bounds.
     pub fn with_selection(
-        lower: usize,
-        upper: usize,
+        boundary: Boundary,
         wrap: Option<Wrap>,
         sel: usize,
     ) -> Result<Self, StateError> {
-        let mut state = Self::new(lower, upper, wrap);
+        let mut state = Self::new(boundary, wrap);
         state.select(sel)?;
         Ok(state)
     }
@@ -78,16 +85,16 @@ impl BoundedState {
             Some(i) => {
                 // define what happens when reaching boundary
                 let wrap_outcome = match self.wrap {
-                    Wrap::Enable => self.upper,
-                    Wrap::Disable => self.lower,
+                    Wrap::Enable => self.boundary.1,
+                    Wrap::Disable => self.boundary.0,
                 };
 
-                if i == self.lower {
+                if i == self.boundary.0 {
                     wrap_outcome
-                } else if i.saturating_sub(n) <= self.lower {
-                    self.lower
+                } else if i.saturating_sub(n) <= self.boundary.0 {
+                    self.boundary.0
                 } else {
-                    self.lower.max(i.saturating_sub(n))
+                    self.boundary.0.max(i.saturating_sub(n))
                 }
             }
             None => 0,
@@ -101,16 +108,16 @@ impl BoundedState {
             Some(i) => {
                 // define what happens when reaching boundary
                 let wrap_outcome = match self.wrap {
-                    Wrap::Enable => self.lower,
-                    Wrap::Disable => self.upper,
+                    Wrap::Enable => self.boundary.0,
+                    Wrap::Disable => self.boundary.1,
                 };
 
-                if i == self.upper {
+                if i == self.boundary.1 {
                     wrap_outcome
-                } else if i.saturating_add(n) >= self.upper {
-                    self.upper
+                } else if i.saturating_add(n) >= self.boundary.1 {
+                    self.boundary.1
                 } else {
-                    self.upper.min(i.saturating_add(n))
+                    self.boundary.1.min(i.saturating_add(n))
                 }
             }
             None => 0,
@@ -120,10 +127,32 @@ impl BoundedState {
 
     /// Set a selection. This will error if the selection provided is out of bounds.
     pub fn select(&mut self, selection: usize) -> Result<(), StateError> {
-        if selection > self.upper || selection < self.lower {
-            return Err(StateError::OutOfBounds(self.lower, self.upper, selection));
+        if selection > self.boundary.1 || selection < self.boundary.0 {
+            return Err(StateError::OutOfBounds {
+                bounds: self.boundary,
+                actual: selection,
+            });
         }
         self.inner.select(Some(selection));
         Ok(())
+    }
+
+    /// Set new boundary constraints on the state
+    pub fn update_boundary(&mut self, boundary: Boundary) {
+        self.boundary = boundary;
+    }
+
+    /// Update the upper boundary and select the last element in the list.
+    /// This is good for when you, for example, add a new item to the associated list
+    /// and want to focus that item.
+    pub fn update_upper_and_select(&mut self, upper: usize) {
+        self.boundary.1 = upper;
+        // this should never fail
+        self.select(upper).unwrap();
+    }
+
+    /// Update the boundary definition using a `Vec<T>`
+    pub fn update_boundary_from_vec<T>(&mut self, v: &Vec<T>) {
+        self.boundary = Boundary::from(v)
     }
 }

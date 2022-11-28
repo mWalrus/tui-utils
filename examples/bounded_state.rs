@@ -8,7 +8,7 @@ use tui_utils::{
     blocks,
     component::{Component, Focus},
     keymap::{key_match, Keybind},
-    state::BoundedState,
+    state::{Boundary, BoundedState},
     style, term, LIST_HIGHLIGHT_SYMBOL,
 };
 
@@ -88,11 +88,11 @@ fn main() {
     ];
 
     // take the upper bounds before moving `items` into `view`
-    let upper_bounds = items.len() - 1;
+    let boundary = Boundary::from(&items);
 
     // since selections can fail the bounds check that happens before
     // setting the selection, we have to handle the error.
-    let state = match BoundedState::with_selection(0, upper_bounds, None, 0) {
+    let state = match BoundedState::with_selection(boundary, None, 0) {
         Ok(s) => s,
         Err(e) => {
             eprintln!("{e}");
