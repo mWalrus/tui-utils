@@ -119,7 +119,6 @@ fn main() {
         // draw the ui first
         terminal
             .draw(|f| {
-                // draw either of the sides
                 if !app.show_modal {
                     // conditional dimming
                     app.main.draw(f, false);
