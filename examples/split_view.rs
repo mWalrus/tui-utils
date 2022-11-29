@@ -3,7 +3,7 @@ use std::error::Error;
 use tui::{style::Color, widgets::Paragraph};
 use tui_utils::{
     blocks,
-    component::{Component, Focus},
+    component::Component,
     keys::{key_match, Keybind},
     split::{self, Ratio},
     term,
@@ -32,6 +32,11 @@ struct App {
     split: Split,
 }
 
+enum AppMessage {
+    Idle,
+    Exit,
+}
+
 struct Split {
     text_left: String,
     text_right: String,
@@ -39,6 +44,7 @@ struct Split {
 }
 
 impl Component for Split {
+    type Message = AppMessage;
     fn draw<B: tui::backend::Backend>(&mut self, f: &mut tui::Frame<B>, _dim: bool) {
         // define a new ratio of 50/50
         let ratio = Ratio::new(50, 50);
@@ -56,13 +62,13 @@ impl Component for Split {
         f.render_widget(right_p, chunks[1]);
     }
 
-    fn handle_input(&mut self, key: KeyEvent) -> Result<Focus, Box<dyn Error>> {
+    fn handle_input(&mut self, key: KeyEvent) -> Result<Self::Message, Box<dyn Error>> {
         if key_match(&key, &self.binds.quit) {
             // unfocus the component if the quit key is pressed
-            Ok(Focus::Release)
+            Ok(AppMessage::Exit)
         } else {
             // otherwise we do nothing
-            Ok(Focus::Keep)
+            Ok(AppMessage::Idle)
         }
     }
 }
@@ -85,8 +91,8 @@ fn main() {
         // then handle input events
         match term::poll_event() {
             Ok(Some(Event::Key(ev))) => match app.split.handle_input(ev) {
-                Ok(Focus::Keep) => {}
-                Ok(Focus::Release) => break, // exit on unfocus
+                Ok(AppMessage::Idle) => {}
+                Ok(AppMessage::Exit) => break,
                 Err(e) => {
                     term::restore_with_err(e).unwrap();
                     return;

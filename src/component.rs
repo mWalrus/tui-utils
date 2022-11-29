@@ -5,6 +5,7 @@ use tui::{backend::Backend, Frame};
 
 /// Trait for implementing components
 pub trait Component {
+    type Message;
     /// Handle all draw logic like constructing widgets and so on.
     /// `dim` can be set if you want to gray out the widgets. Note
     /// that this requires importing the `Dim` trait to be able to
@@ -13,13 +14,11 @@ pub trait Component {
     /// Take care of any input handling here. This method is not
     /// required when implementing `Component` in case your component
     /// does not require input handling.
-    fn handle_input(&mut self, _key: KeyEvent) -> Result<Focus, Box<dyn Error>> {
-        Ok(Focus::Keep)
-    }
+    fn handle_input(&mut self, _key: KeyEvent) -> Result<Self::Message, Box<dyn Error>>;
 }
 
-/// Dictate the focus state of the current component
-pub enum Focus {
-    Release,
-    Keep,
+/// Trait for implementing static components with no input handling
+pub trait StaticComponent {
+    /// Draw your component
+    fn draw<B: Backend>(&mut self, f: &mut Frame<B>, dim: bool);
 }

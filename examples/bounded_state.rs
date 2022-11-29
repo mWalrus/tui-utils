@@ -6,7 +6,7 @@ use tui::{
 };
 use tui_utils::{
     blocks,
-    component::{Component, Focus},
+    component::Component,
     keys::{key_match, Keybind},
     state::{Boundary, BoundedState, StateWrap},
     style, term, LIST_HIGHLIGHT_SYMBOL,
@@ -60,6 +60,11 @@ struct App {
     view: View,
 }
 
+enum AppMessage {
+    Idle,
+    Exit,
+}
+
 struct View {
     items: Vec<String>,
     state: BoundedState,
@@ -67,6 +72,7 @@ struct View {
 }
 
 impl Component for View {
+    type Message = AppMessage;
     fn draw<B: tui::backend::Backend>(&mut self, f: &mut tui::Frame<B>, _dim: bool) {
         // map the items into `ListItem`s
         let items: Vec<ListItem> = self
@@ -84,10 +90,10 @@ impl Component for View {
         f.render_stateful_widget(list, f.size(), self.state.inner());
     }
 
-    fn handle_input(&mut self, key: KeyEvent) -> Result<Focus, Box<dyn Error>> {
+    fn handle_input(&mut self, key: KeyEvent) -> Result<Self::Message, Box<dyn Error>> {
         if key_match(&key, &self.binds.quit) {
             // unfocus the component if the quit key is pressed
-            return Ok(Focus::Release);
+            return Ok(AppMessage::Exit);
         } else if key_match(&key, &self.binds.up) {
             self.state.prev();
         } else if key_match(&key, &self.binds.down) {
@@ -102,7 +108,7 @@ impl Component for View {
         } else if key_match(&key, &self.binds.bottom) {
             self.state.last();
         }
-        Ok(Focus::Keep)
+        Ok(AppMessage::Idle)
     }
 }
 
@@ -148,8 +154,8 @@ fn main() {
         // then handle input events
         match term::poll_event() {
             Ok(Some(Event::Key(ev))) => match app.view.handle_input(ev) {
-                Ok(Focus::Keep) => {}
-                Ok(Focus::Release) => break, // exit on focus release
+                Ok(AppMessage::Idle) => {}
+                Ok(AppMessage::Exit) => break, // exit on focus release
                 Err(e) => {
                     term::restore_with_err(e).unwrap();
                     return;
