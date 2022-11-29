@@ -155,4 +155,14 @@ impl BoundedState {
     pub fn update_boundary_from_vec<T>(&mut self, v: &Vec<T>) {
         self.boundary = Boundary::from(v)
     }
+
+    /// Select the "first" allowed index
+    pub fn first(&mut self) {
+        self.inner.select(Some(self.boundary.0));
+    }
+
+    /// Select the "last" allowed index
+    pub fn last(&mut self) {
+        self.inner.select(Some(self.boundary.1));
+    }
 }

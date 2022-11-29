@@ -18,6 +18,8 @@ struct KeyBinds {
     up: Keybind,
     down: Keybind,
     add: Keybind,
+    top: Keybind,
+    bottom: Keybind,
     // add more here
 }
 
@@ -41,6 +43,14 @@ impl KeyBinds {
                 code: KeyCode::Enter,
                 modifiers: KeyModifiers::empty(),
             },
+            top: Keybind {
+                code: KeyCode::Char('t'),
+                modifiers: KeyModifiers::empty(),
+            },
+            bottom: Keybind {
+                code: KeyCode::Char('b'),
+                modifiers: KeyModifiers::empty(),
+            },
         }
     }
 }
@@ -51,7 +61,7 @@ struct App {
 }
 
 struct View {
-    items: Vec<&'static str>,
+    items: Vec<String>,
     state: BoundedState,
     binds: KeyBinds,
 }
@@ -59,7 +69,11 @@ struct View {
 impl Component for View {
     fn draw<B: tui::backend::Backend>(&mut self, f: &mut tui::Frame<B>, _dim: bool) {
         // map the items into `ListItem`s
-        let items: Vec<ListItem> = self.items.iter().map(|i| ListItem::new(*i)).collect();
+        let items: Vec<ListItem> = self
+            .items
+            .iter()
+            .map(|i| ListItem::new(i.clone()))
+            .collect();
 
         // create the list with `tui_utils` helpers
         let list = List::new(items)
@@ -80,9 +94,13 @@ impl Component for View {
             self.state.next();
         } else if key_match(&key, &self.binds.add) {
             // add a new item to the `items` member
-            self.items.push("New Item");
+            self.items.push(format!("Item {}", self.items.len() + 1));
             // update the boundary accordingly
             self.state.update_boundary_from_vec(&self.items);
+        } else if key_match(&key, &self.binds.top) {
+            self.state.first();
+        } else if key_match(&key, &self.binds.bottom) {
+            self.state.last();
         }
         Ok(Focus::Keep)
     }
@@ -90,12 +108,15 @@ impl Component for View {
 
 fn main() {
     // dummy data for the list
-    let items = vec![
+    let items: Vec<String> = vec![
         "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Item 7", "Item 8", "Item 9",
         "Item 10", "Item 11", "Item 12", "Item 13", "Item 14", "Item 15", "Item 16", "Item 17",
         "Item 18", "Item 19", "Item 20", "Item 21", "Item 22", "Item 23", "Item 24", "Item 25",
         "Item 26", "Item 27", "Item 28", "Item 29", "Item 30",
-    ];
+    ]
+    .into_iter()
+    .map(String::from) // conversion just for the example
+    .collect();
 
     // take the upper bounds before moving `items` into `view`
     let boundary = Boundary::from(&items);
