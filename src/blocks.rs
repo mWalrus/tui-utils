@@ -36,7 +36,7 @@ pub fn block_constructor(
     border_style: Option<Style>,
     borders: Option<Borders>,
 ) -> Block {
-    let mut block = Block::default().borders(Borders::ALL).title(title);
+    let mut block = Block::default().title(title);
 
     if let Some(s) = border_style {
         block = block.border_style(s);
