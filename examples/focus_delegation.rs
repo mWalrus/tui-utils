@@ -41,7 +41,9 @@ struct App {
     show_modal: bool,
 }
 
+#[derive(Default)]
 enum AppMessage {
+    #[default]
     Idle,
     ShowModal,
     Back,

@@ -32,7 +32,9 @@ struct App {
     split: Split,
 }
 
+#[derive(Default)]
 enum AppMessage {
+    #[default]
     Idle,
     Exit,
 }

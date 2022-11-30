@@ -5,7 +5,13 @@ use tui::{backend::Backend, Frame};
 
 /// Trait for implementing components
 pub trait Component {
-    type Message;
+    /// Set this to your defined application message enum.
+    ///
+    /// It can also be left empty:
+    /// ```
+    /// type Message = ();
+    /// ```
+    type Message: Default;
     /// Handle all draw logic like constructing widgets and so on.
     /// `dim` can be set if you want to gray out the widgets. Note
     /// that this requires importing the `Dim` trait to be able to
@@ -14,11 +20,7 @@ pub trait Component {
     /// Take care of any input handling here. This method is not
     /// required when implementing `Component` in case your component
     /// does not require input handling.
-    fn handle_input(&mut self, _key: KeyEvent) -> Result<Self::Message, Box<dyn Error>>;
-}
-
-/// Trait for implementing static components with no input handling
-pub trait StaticComponent {
-    /// Draw your component
-    fn draw<B: Backend>(&mut self, f: &mut Frame<B>, dim: bool);
+    fn handle_input(&mut self, _key: KeyEvent) -> Result<Self::Message, Box<dyn Error>> {
+        Ok(Default::default())
+    }
 }

@@ -60,7 +60,9 @@ struct App {
     view: View,
 }
 
+#[derive(Default)]
 enum AppMessage {
+    #[default]
     Idle,
     Exit,
 }
