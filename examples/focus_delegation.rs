@@ -1,5 +1,5 @@
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-use std::error::Error;
+use std::{error::Error, rc::Rc};
 use tui::{
     style::Color,
     widgets::{Clear, Paragraph},
@@ -7,18 +7,22 @@ use tui::{
 use tui_utils::{
     blocks::{self, Dim},
     component::Component,
-    keys::{key_match, Keybind},
+    keys::{key_match, Keybind, SharedKeys},
     rect, term,
 };
 
-// example of how to define keybinds
-struct KeyBinds {
+// Example of how to define keybinds.
+// Here we derive `SharedKeys` which will allow us to create
+// a single instance of `Keymap` using `Keymap::shared()` which
+// gives us an `Rc<Keymap>`.
+#[derive(SharedKeys)]
+struct Keymap {
     quit: Keybind,
     modal_open: Keybind, // add more here
 }
 
-impl KeyBinds {
-    fn new() -> Self {
+impl Default for Keymap {
+    fn default() -> Self {
         Self {
             // simple quit bind
             quit: Keybind {
@@ -51,11 +55,11 @@ enum AppMessage {
 }
 
 struct Main {
-    binds: KeyBinds,
+    keys: Rc<Keymap>,
 }
 
 struct Modal {
-    binds: KeyBinds,
+    keys: Rc<Keymap>,
 }
 
 impl Component for Main {
@@ -67,10 +71,10 @@ impl Component for Main {
     }
 
     fn handle_input(&mut self, key: KeyEvent) -> Result<Self::Message, Box<dyn Error>> {
-        if key_match(&key, &self.binds.quit) {
+        if key_match(&key, &self.keys.quit) {
             // unfocus the component if the quit key is pressed
             return Ok(AppMessage::Exit);
-        } else if key_match(&key, &self.binds.modal_open) {
+        } else if key_match(&key, &self.keys.modal_open) {
             // report that we want to open the modal
             return Ok(AppMessage::ShowModal);
         }
@@ -93,7 +97,7 @@ impl Component for Modal {
     }
 
     fn handle_input(&mut self, key: KeyEvent) -> Result<Self::Message, Box<dyn Error>> {
-        if key_match(&key, &self.binds.quit) {
+        if key_match(&key, &self.keys.quit) {
             // unfocus the component if the quit key is pressed
             return Ok(AppMessage::Back);
         }
@@ -102,12 +106,16 @@ impl Component for Modal {
 }
 
 fn main() {
-    let main = Main {
-        binds: KeyBinds::new(),
-    };
-    let modal = Modal {
-        binds: KeyBinds::new(),
-    };
+    // Create a shared keymap.
+    // This allows us to take a reference to the keys and delegate
+    // them across our components instead of cloning the entire
+    // `Keymap` object each time or initializing a new instance.
+    let keys = Keymap::shared();
+
+    // clone gives us a pointer to the above created keymap
+    let main = Main { keys: keys.clone() };
+    let modal = Modal { keys: keys.clone() };
+
     let mut app = App {
         main,
         modal,

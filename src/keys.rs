@@ -1,5 +1,15 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+pub use keys_derive::SharedKeys;
 use serde::{Deserialize, Serialize};
+use std::rc::Rc;
+
+/// Creates a `Rc` wrapper around your keymap which allows you to
+/// take a reference to a single allocated instance of your keymap.
+/// This is useful for when you have more than one component which
+/// performs input handling.
+pub trait SharedKeys {
+    fn shared() -> Rc<Self>;
+}
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Keybind {
