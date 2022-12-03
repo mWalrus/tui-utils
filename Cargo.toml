@@ -11,4 +11,4 @@ crossterm = { version ="0.25.0", features = ["serde"] }
 serde = { version = "1.0.147", features = ["derive", "rc"] }
 thiserror = "1.0.37"
 tui = "0.19.0"
-keys_derive = { path = "keys_derive"}
+shared_derive = { path = "shared_derive"}

@@ -2,7 +2,7 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn;
 
-#[proc_macro_derive(SharedKeys)]
+#[proc_macro_derive(Shared)]
 pub fn shared(input: TokenStream) -> TokenStream {
     let ast = syn::parse(input).unwrap();
 
@@ -12,7 +12,7 @@ pub fn shared(input: TokenStream) -> TokenStream {
 fn impl_shared(ast: &syn::DeriveInput) -> TokenStream {
     let name = &ast.ident;
     let gen = quote! {
-        impl SharedKeys for #name {
+        impl Shared for #name {
             fn shared() -> std::rc::Rc<Self> {
                 std::rc::Rc::new(Self::default())
             }

@@ -7,15 +7,15 @@ use tui::{
 use tui_utils::{
     blocks::{self, Dim},
     component::Component,
-    keys::{key_match, Keybind, SharedKeys},
+    keys::{key_match, Keybind, Shared},
     rect, term,
 };
 
 // Example of how to define keybinds.
-// Here we derive `SharedKeys` which will allow us to create
+// Here we derive `Shared` which will allow us to create
 // a single instance of `Keymap` using `Keymap::shared()` which
 // gives us an `Rc<Keymap>`.
-#[derive(SharedKeys)]
+#[derive(Shared)]
 struct Keymap {
     quit: Keybind,
     modal_open: Keybind, // add more here
