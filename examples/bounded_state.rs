@@ -1,8 +1,9 @@
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use std::error::Error;
 use tui::{
+    layout::Rect,
     style::Color,
-    widgets::{List, ListItem},
+    widgets::{Clear, List, ListItem},
 };
 use tui_utils::{
     blocks,
@@ -76,6 +77,9 @@ struct View {
 impl Component for View {
     type Message = AppMessage;
     fn draw<B: tui::backend::Backend>(&mut self, f: &mut tui::Frame<B>, _dim: bool) {
+        // get the size of the frame
+        let size = f.size();
+
         // map the items into `ListItem`s
         let items: Vec<ListItem> = self
             .items
@@ -89,7 +93,33 @@ impl Component for View {
             .highlight_style(style::highlight_style())
             .highlight_symbol(LIST_HIGHLIGHT_SYMBOL);
 
-        f.render_stateful_widget(list, f.size(), self.state.inner());
+        f.render_stateful_widget(list, size, self.state.inner());
+
+        // keybind help window stuff down here
+        let help_rect = Rect {
+            x: size.width - 20,
+            y: 1,
+            width: 18,
+            height: 8,
+        };
+
+        // to_string each keybind and create a formatted string from them
+        let keybind_items: Vec<ListItem> = vec![
+            format!("Quit: {}", self.binds.quit.to_string()),
+            format!("Up: {}", self.binds.up.to_string()),
+            format!("Down: {}", self.binds.down.to_string()),
+            format!("Add: {}", self.binds.add.to_string()),
+            format!("Top: {}", self.binds.top.to_string()),
+            format!("Bottom: {}", self.binds.bottom.to_string()),
+        ]
+        .into_iter()
+        .map(ListItem::new) // map into `ListItem`
+        .collect();
+
+        let help_list = List::new(keybind_items).block(blocks::default_block("Help", Color::White));
+        // clear the space where the help screen will be rendered
+        f.render_widget(Clear, help_rect);
+        f.render_widget(help_list, help_rect);
     }
 
     fn handle_input(&mut self, key: KeyEvent) -> Result<Self::Message, Box<dyn Error>> {
@@ -154,22 +184,21 @@ fn main() {
         terminal.draw(|f| app.view.draw(f, false)).unwrap();
 
         // then handle input events
-        match term::poll_event() {
-            Ok(Some(Event::Key(ev))) => match app.view.handle_input(ev) {
-                Ok(AppMessage::Idle) => {}
-                Ok(AppMessage::Exit) => break, // exit on focus release
-                Err(e) => {
-                    term::restore_with_err(e).unwrap();
-                    return;
-                }
-            },
+        let event_outcome = match term::poll_event() {
+            Ok(Some(Event::Key(ev))) => app.view.handle_input(ev),
             // other term events, we dont handle them in this example
-            Ok(Some(_)) => {}
+            Ok(Some(_)) => Ok(AppMessage::Idle),
             // no events were found
-            Ok(None) => {}
+            Ok(None) => Ok(AppMessage::Idle),
             // something went wrong
+            Err(e) => Err(e.into()),
+        };
+
+        match event_outcome {
+            Ok(AppMessage::Idle) => {}
+            Ok(AppMessage::Exit) => break, // exit on focus release
             Err(e) => {
-                term::restore_with_err(e.into()).unwrap();
+                term::restore_with_err(e).unwrap();
                 return;
             }
         }
