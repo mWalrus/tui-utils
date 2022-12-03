@@ -91,22 +91,21 @@ fn main() {
         terminal.draw(|f| app.split.draw(f, false)).unwrap();
 
         // then handle input events
-        match term::poll_event() {
-            Ok(Some(Event::Key(ev))) => match app.split.handle_input(ev) {
-                Ok(AppMessage::Idle) => {}
-                Ok(AppMessage::Exit) => break,
-                Err(e) => {
-                    term::restore_with_err(e).unwrap();
-                    return;
-                }
-            },
+        let event_outcome = match term::poll_event() {
+            Ok(Some(Event::Key(ev))) => app.split.handle_input(ev),
             // other term events, we dont handle them in this example
-            Ok(Some(_)) => {}
+            Ok(Some(_)) => Ok(AppMessage::Idle),
             // no events were found
-            Ok(None) => {}
+            Ok(None) => Ok(AppMessage::Idle),
             // something went wrong
+            Err(e) => Err(e.into()),
+        };
+
+        match event_outcome {
+            Ok(AppMessage::Idle) => {}
+            Ok(AppMessage::Exit) => break,
             Err(e) => {
-                term::restore_with_err(e.into()).unwrap();
+                term::restore_with_err(e).unwrap();
                 return;
             }
         }
