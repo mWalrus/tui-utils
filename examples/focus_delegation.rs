@@ -42,7 +42,12 @@ struct App {
     main: Main,
     modal: Modal,
     // dictates which side has focus
-    show_modal: bool,
+    state: AppState,
+}
+
+enum AppState {
+    Main,
+    Modal,
 }
 
 #[derive(Default)]
@@ -119,7 +124,7 @@ fn main() {
     let mut app = App {
         main,
         modal,
-        show_modal: false,
+        state: AppState::Main,
     };
 
     // init the terminal
@@ -129,48 +134,39 @@ fn main() {
         // draw the ui first
         terminal
             .draw(|f| {
-                if !app.show_modal {
+                match app.state {
                     // conditional dimming
-                    app.main.draw(f, false);
-                } else {
-                    // conditional dimming
-                    app.main.draw(f, true);
-                    app.modal.draw(f, false);
+                    AppState::Main => app.main.draw(f, false),
+                    AppState::Modal => {
+                        // conditional dimming
+                        app.main.draw(f, true);
+                        app.modal.draw(f, false);
+                    }
                 }
             })
             .unwrap();
 
         // then handle input events
-        match term::poll_event() {
-            Ok(Some(Event::Key(ev))) => {
-                if !app.show_modal {
-                    match app.main.handle_input(ev) {
-                        Ok(AppMessage::ShowModal) => app.show_modal = true,
-                        Ok(AppMessage::Exit) => break, // exit on focus release
-                        Err(e) => {
-                            term::restore_with_err(e).unwrap();
-                            return;
-                        }
-                        _ => {}
-                    }
-                } else {
-                    match app.modal.handle_input(ev) {
-                        Ok(AppMessage::Back) => app.show_modal = false, // hide the modal
-                        Err(e) => {
-                            term::restore_with_err(e).unwrap();
-                            return;
-                        }
-                        _ => {}
-                    }
-                }
-            }
+        let event_outcome = match term::poll_event() {
+            Ok(Some(Event::Key(ev))) => match app.state {
+                AppState::Main => app.main.handle_input(ev),
+                AppState::Modal => app.modal.handle_input(ev),
+            },
             // other term events, we dont handle them in this example
-            Ok(Some(_)) => {}
+            Ok(Some(_)) => Ok(AppMessage::Idle),
             // no events were found
-            Ok(None) => {}
+            Ok(None) => Ok(AppMessage::Idle),
             // something went wrong
+            Err(e) => Err(e.into()),
+        };
+
+        match event_outcome {
+            Ok(AppMessage::ShowModal) => app.state = AppState::Modal,
+            Ok(AppMessage::Back) => app.state = AppState::Main, // hide the modal
+            Ok(AppMessage::Exit) => break,                      // exit on focus release
+            Ok(AppMessage::Idle) => {}
             Err(e) => {
-                term::restore_with_err(e.into()).unwrap();
+                term::restore_with_err(e).unwrap();
                 return;
             }
         }
