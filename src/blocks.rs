@@ -9,16 +9,17 @@ pub trait Dim {
 }
 
 impl Dim for Block<'static> {
+    // FIXME: update this api to not need the dim parameter
     fn dim(self, dim: bool) -> Self {
-        if dim {
-            let style = Style::default().fg(Color::Indexed(8));
-            self.border_style(style).style(style)
-        } else {
-            self
+        if !dim {
+            return self;
         }
+        let style = Style::default().fg(Color::Indexed(8));
+        self.border_style(style).style(style)
     }
 }
 
+// FIXME: refactor all the below into cleaner, faster code
 /// Construct a block with a bold border and title
 pub fn bold_block(title: &'static str, border_fg: Color) -> Block {
     let border_style = Style::default().fg(border_fg).add_modifier(Modifier::BOLD);
@@ -31,6 +32,7 @@ pub fn default_block(title: &'static str, border_fg: Color) -> Block {
     block_constructor(title, Some(border_style), Some(Borders::ALL))
 }
 
+/// Basically same thing as just constructing the block
 pub fn block_constructor(
     title: &'static str,
     border_style: Option<Style>,

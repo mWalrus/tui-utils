@@ -3,7 +3,7 @@ use tui::widgets::ListState;
 
 #[derive(Error, Debug)]
 pub enum StateError {
-    #[error("state selection not within boundary range {}..{} (is: {})", bounds.0, bounds.1, actual)]
+    #[error("Out of Bounds Error: state selection not within boundary range {}..{} (is: {})", bounds.0, bounds.1, actual)]
     OutOfBounds { bounds: Boundary, actual: usize },
 }
 
@@ -69,12 +69,10 @@ impl BoundedState {
         &mut self.inner
     }
 
-    /// Take one step "forwards".
     pub fn next(&mut self) {
         self.next_n(1)
     }
 
-    /// Take one step "backwards".
     pub fn prev(&mut self) {
         self.prev_n(1)
     }
@@ -147,8 +145,7 @@ impl BoundedState {
     /// and want to focus that item.
     pub fn update_upper_and_select(&mut self, upper: usize) {
         self.boundary.1 = upper;
-        // this should never fail
-        self.select(upper).unwrap();
+        self.select(upper).expect("This should never fail");
     }
 
     /// Update the boundary definition using a `Vec<T>`

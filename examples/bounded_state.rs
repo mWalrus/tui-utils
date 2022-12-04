@@ -13,7 +13,6 @@ use tui_utils::{
     style, term, LIST_HIGHLIGHT_SYMBOL,
 };
 
-// example of how to define keybinds
 struct KeyBinds {
     quit: Keybind,
     up: Keybind,
@@ -27,7 +26,6 @@ struct KeyBinds {
 impl KeyBinds {
     fn new() -> Self {
         Self {
-            // simple quit bind
             quit: Keybind {
                 code: KeyCode::Esc,
                 modifiers: KeyModifiers::empty(),
@@ -56,7 +54,6 @@ impl KeyBinds {
     }
 }
 
-// example application struct
 struct App {
     view: View,
 }
@@ -84,7 +81,7 @@ impl Component for View {
         let items: Vec<ListItem> = self
             .items
             .iter()
-            .map(|i| ListItem::new(i.clone()))
+            .map(|i| ListItem::new(i.as_str()))
             .collect();
 
         // create the list with `tui_utils` helpers
@@ -93,15 +90,8 @@ impl Component for View {
             .highlight_style(style::highlight_style())
             .highlight_symbol(LIST_HIGHLIGHT_SYMBOL);
 
+        // render the widget with the state
         f.render_stateful_widget(list, size, self.state.inner());
-
-        // keybind help window stuff down here
-        let help_rect = Rect {
-            x: size.width - 20,
-            y: 1,
-            width: 18,
-            height: 8,
-        };
 
         // to_string each keybind and create a formatted string from them
         let keybind_items: Vec<ListItem> = vec![
@@ -116,6 +106,14 @@ impl Component for View {
         .map(ListItem::new) // map into `ListItem`
         .collect();
 
+        // keybind help window stuff down here
+        let help_rect = Rect {
+            x: size.width - 20,
+            y: 1,
+            width: 18,
+            height: keybind_items.len() as u16 + 2, // take the number of items as a height guide and account for borders
+        };
+
         let help_list = List::new(keybind_items).block(blocks::default_block("Help", Color::White));
         // clear the space where the help screen will be rendered
         f.render_widget(Clear, help_rect);
@@ -124,7 +122,7 @@ impl Component for View {
 
     fn handle_input(&mut self, key: KeyEvent) -> Result<Self::Message, Box<dyn Error>> {
         if key_match(&key, &self.binds.quit) {
-            // unfocus the component if the quit key is pressed
+            // signal an exit if the quit bind is pressed
             return Ok(AppMessage::Exit);
         } else if key_match(&key, &self.binds.up) {
             self.state.prev();
@@ -153,10 +151,10 @@ fn main() {
         "Item 26", "Item 27", "Item 28", "Item 29", "Item 30",
     ]
     .into_iter()
-    .map(String::from) // conversion just for the example
+    .map(String::from)
     .collect();
 
-    // take the upper bounds before moving `items` into `view`
+    // take the bounds before moving `items` into `view`
     let boundary = Boundary::from(&items);
 
     // since selections can fail the bounds check that happens before
@@ -196,7 +194,7 @@ fn main() {
 
         match event_outcome {
             Ok(AppMessage::Idle) => {}
-            Ok(AppMessage::Exit) => break, // exit on focus release
+            Ok(AppMessage::Exit) => break, // exit on signal
             Err(e) => {
                 term::restore_with_err(e).unwrap();
                 return;

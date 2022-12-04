@@ -13,7 +13,7 @@ common stuff.
     - `Dim`: trait that allows for dimming the blocks
     - `bold_block`: creates a block with bold borders and a color of choice
     - `default_block`: create a default block with all borders and a color of choice
-    - `block_constructor`: finer control over the style, also allows for skipping borders
+    - `block_constructor`: basically same thing as constructing a block the normal way
 - [keys](./src/keys.rs)
     - `SharedKeys`: Allows for creating a `Rc` around your keymap
       which is cheaper to clone and delegate between components since you're only

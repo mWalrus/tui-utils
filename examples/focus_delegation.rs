@@ -18,13 +18,12 @@ use tui_utils::{
 #[derive(Shared)]
 struct Keymap {
     quit: Keybind,
-    modal_open: Keybind, // add more here
+    modal_open: Keybind,
 }
 
 impl Default for Keymap {
     fn default() -> Self {
         Self {
-            // simple quit bind
             quit: Keybind {
                 code: KeyCode::Esc,
                 modifiers: KeyModifiers::empty(),
@@ -37,11 +36,10 @@ impl Default for Keymap {
     }
 }
 
-// example application struct
 struct App {
     main: Main,
     modal: Modal,
-    // dictates which side has focus
+    // dictates which component has focus in this example
     state: AppState,
 }
 
@@ -77,7 +75,7 @@ impl Component for Main {
 
     fn handle_input(&mut self, key: KeyEvent) -> Result<Self::Message, Box<dyn Error>> {
         if key_match(&key, &self.keys.quit) {
-            // unfocus the component if the quit key is pressed
+            // return exit signal if the quit key is pressed
             return Ok(AppMessage::Exit);
         } else if key_match(&key, &self.keys.modal_open) {
             // report that we want to open the modal
@@ -103,7 +101,7 @@ impl Component for Modal {
 
     fn handle_input(&mut self, key: KeyEvent) -> Result<Self::Message, Box<dyn Error>> {
         if key_match(&key, &self.keys.quit) {
-            // unfocus the component if the quit key is pressed
+            // return exit signal if the quit key is pressed
             return Ok(AppMessage::Back);
         }
         Ok(AppMessage::Idle)
@@ -112,12 +110,10 @@ impl Component for Modal {
 
 fn main() {
     // Create a shared keymap.
-    // This allows us to take a reference to the keys and delegate
-    // them across our components instead of cloning the entire
-    // `Keymap` object each time or initializing a new instance.
     let keys = Keymap::shared();
 
     // clone gives us a pointer to the above created keymap
+    // which is cheaper than to create a new instance of keymap.
     let main = Main { keys: keys.clone() };
     let modal = Modal { keys: keys.clone() };
 
@@ -135,10 +131,9 @@ fn main() {
         terminal
             .draw(|f| {
                 match app.state {
-                    // conditional dimming
                     AppState::Main => app.main.draw(f, false),
                     AppState::Modal => {
-                        // conditional dimming
+                        // dim the main component to signal that the modal is in focus
                         app.main.draw(f, true);
                         app.modal.draw(f, false);
                     }
@@ -162,8 +157,8 @@ fn main() {
 
         match event_outcome {
             Ok(AppMessage::ShowModal) => app.state = AppState::Modal,
-            Ok(AppMessage::Back) => app.state = AppState::Main, // hide the modal
-            Ok(AppMessage::Exit) => break,                      // exit on focus release
+            Ok(AppMessage::Back) => app.state = AppState::Main,
+            Ok(AppMessage::Exit) => break,
             Ok(AppMessage::Idle) => {}
             Err(e) => {
                 term::restore_with_err(e).unwrap();

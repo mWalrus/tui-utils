@@ -12,13 +12,13 @@ use tui_utils::{
 // example of how to define keybinds
 struct KeyBinds {
     quit: Keybind,
-    // add more here
+    // add all your binds here
 }
 
 impl KeyBinds {
     fn new() -> Self {
         Self {
-            // simple quit bind
+            // simple quit keybind
             quit: Keybind {
                 code: KeyCode::Esc,
                 modifiers: KeyModifiers::empty(),
@@ -27,7 +27,6 @@ impl KeyBinds {
     }
 }
 
-// example application struct
 struct App {
     split: Split,
 }
@@ -66,12 +65,11 @@ impl Component for Split {
 
     fn handle_input(&mut self, key: KeyEvent) -> Result<Self::Message, Box<dyn Error>> {
         if key_match(&key, &self.binds.quit) {
-            // unfocus the component if the quit key is pressed
-            Ok(AppMessage::Exit)
-        } else {
-            // otherwise we do nothing
-            Ok(AppMessage::Idle)
+            // send back an exit signal if the quit key is pressed
+            return Ok(AppMessage::Exit);
         }
+        // do nothing by default
+        Ok(AppMessage::Idle)
     }
 }
 

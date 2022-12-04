@@ -11,5 +11,5 @@ pub mod term;
 
 /// Used for event polling with crossterm
 pub(crate) static EVENT_TIMEOUT: Duration = Duration::from_millis(1000);
-/// Default highlight symbol which can be used within tui-rs's `List`s
+/// Default highlight symbol
 pub static LIST_HIGHLIGHT_SYMBOL: &str = " > ";

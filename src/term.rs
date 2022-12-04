@@ -19,7 +19,7 @@ pub enum TermError {
     Init(String),
 }
 
-/// Prepare the terminal by flushing the screen and hiding the cursor
+/// Prepare the terminal by clearing the screen and hiding the cursor
 pub fn init() -> Result<Terminal<CrosstermBackend<io::Stdout>>, TermError> {
     crossterm::execute!(io::stdout(), EnterAlternateScreen)
         .map_err(|e| TermError::Init(e.to_string()))?;
@@ -52,7 +52,7 @@ pub fn restore() -> Result<(), TermError> {
 }
 
 /// Poll for crossterm events such as key events. This blocks the current
-/// thread for 1 second before timeout'ing, letting the application
+/// thread for 1 second before timeout, letting the application
 /// continue execution.
 pub fn poll_event() -> Result<Option<Event>, TermError> {
     let outcome = match event::poll(EVENT_TIMEOUT) {

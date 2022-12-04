@@ -6,11 +6,13 @@ use std::rc::Rc;
 /// Creates a `Rc` wrapper around your keymap which allows you to
 /// take a reference to a single allocated instance of your keymap.
 /// This is useful for when you have more than one component which
-/// performs input handling.
+/// performs input handling since you can clone a pointer to the same
+/// keymap and give out to each component.
 pub trait Shared {
     fn shared() -> Rc<Self>;
 }
 
+// Carbon copy of crossterm's `KeyEvent` which allows for easier construction and also easy comparison when input handling.
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Keybind {
     pub code: KeyCode,
@@ -62,6 +64,7 @@ impl ToString for Keybind {
     }
 }
 
+/// Helper function to figure out if a specific key was pressed.
 pub fn key_match(ev: &KeyEvent, binding: &Keybind) -> bool {
     ev.code == binding.code && ev.modifiers == binding.modifiers
 }
