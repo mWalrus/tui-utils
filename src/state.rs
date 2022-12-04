@@ -153,17 +153,14 @@ impl BoundedState {
         self.boundary = Boundary::from(v)
     }
 
-    /// Select the "first" allowed index
     pub fn first(&mut self) {
         self.inner.select(Some(self.boundary.0));
     }
 
-    /// Select the "last" allowed index
     pub fn last(&mut self) {
         self.inner.select(Some(self.boundary.1));
     }
 
-    /// Unset selection in the state
     pub fn deselect(&mut self) {
         self.inner.select(None);
     }
