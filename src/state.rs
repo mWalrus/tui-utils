@@ -165,3 +165,45 @@ impl BoundedState {
         self.inner.select(None);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{Boundary, BoundedState, StateWrap};
+
+    #[test]
+    #[should_panic]
+    fn selection_out_of_bounds() {
+        let boundary = Boundary(0, 10);
+        let mut state = BoundedState::new(boundary, StateWrap::Enable);
+        state.select(11).unwrap()
+    }
+
+    #[test]
+    fn selection_on_edge() {
+        let boundary = Boundary(0, 10);
+        let mut state = BoundedState::new(boundary, StateWrap::Enable);
+        state.select(10).unwrap()
+    }
+
+    #[test]
+    fn update_bounds_from_vec() {
+        let mut v = vec![1, 2, 3, 4, 5, 6];
+        let boundary = Boundary::from(&v);
+
+        let mut state = BoundedState::new(boundary, StateWrap::Enable);
+        state.last();
+
+        assert_eq!(state.inner.selected(), Some(5));
+
+        v.push(7);
+        v.push(8);
+        v.push(9);
+        v.push(10);
+
+        state.update_boundary_from_vec(&v);
+
+        state.last();
+
+        assert_eq!(state.inner.selected(), Some(9));
+    }
+}

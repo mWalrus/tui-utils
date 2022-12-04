@@ -12,6 +12,8 @@ impl Default for Ratio {
 impl Ratio {
     /// Set a specific ratio in percentage units
     /// ```
+    /// use tui_utils::split::Ratio;
+    ///
     /// // set the ratio to 70%/30%
     /// let ratio = Ratio::new(70, 30);
     /// ```
