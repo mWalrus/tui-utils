@@ -150,7 +150,14 @@ impl BoundedState {
 
     /// Update the boundary definition using a `Vec<T>`
     pub fn update_boundary_from_vec<T>(&mut self, v: &Vec<T>) {
-        self.boundary = Boundary::from(v)
+        self.boundary = Boundary::from(v);
+        if let Some(s) = self.inner.selected() {
+            if s < self.boundary.0 {
+                self.inner.select(Some(self.boundary.0));
+            } else if s > self.boundary.1 {
+                self.inner.select(Some(self.boundary.1));
+            }
+        }
     }
 
     pub fn first(&mut self) {
@@ -205,5 +212,67 @@ mod tests {
         state.last();
 
         assert_eq!(state.inner.selected(), Some(9));
+    }
+
+    #[test]
+    fn update_bounds_and_select_last() {
+        let boundary = Boundary(0, 10);
+        let mut state = BoundedState::new(boundary, StateWrap::Enable);
+
+        assert_eq!(state.inner.selected(), None);
+
+        state.update_upper_and_select(20);
+
+        assert_eq!(state.inner.selected(), Some(20))
+    }
+
+    #[test]
+    fn selection_within_bounds() {
+        let boundary = Boundary(0, 10);
+        let mut state = BoundedState::new(boundary, StateWrap::Enable);
+        state.select(5).unwrap()
+    }
+
+    #[test]
+    fn wrap_disabled_should_stay() {
+        let boundary = Boundary(0, 10);
+        let mut state = BoundedState::new(boundary, StateWrap::Disable);
+
+        state.last();
+        assert_eq!(state.inner.selected(), Some(10));
+
+        // push boundary
+        state.next();
+        state.next();
+        state.next();
+        assert_eq!(state.inner.selected(), Some(10));
+    }
+
+    #[test]
+    fn wrap_enabled_should_wrap() {
+        let boundary = Boundary(0, 10);
+        let mut state = BoundedState::new(boundary, StateWrap::Enable);
+
+        state.last();
+        assert_eq!(state.inner.selected(), Some(10));
+
+        // push boundary
+        state.next();
+        assert_eq!(state.inner.selected(), Some(0));
+    }
+
+    #[test]
+    fn decrease_bounds_size_should_correct_oob() {
+        let mut v = vec![1, 2, 3, 4, 5, 6];
+        let boundary = Boundary::from(&v);
+        let mut state = BoundedState::new(boundary, StateWrap::Enable);
+
+        state.last();
+        assert_eq!(state.inner.selected(), Some(5));
+
+        v.pop();
+        state.update_boundary_from_vec(&v);
+
+        assert!(state.inner.selected().unwrap() <= v.len() - 1);
     }
 }
