@@ -26,7 +26,8 @@ common stuff.
     - `centered_rect`: creates a centered `Rect` that is half the width and height of the
       original `Rect`.
 - [split](./src/split.rs)
-    - `Ratio`: Tuple struct used to define split ratios.
+    - `Ratio`: Tuple struct used to define split ratios in percentage. Normalizes to 100%
+      if the ratio's sum is greater than 100.
     - `v_split`: creates a vertically split view within a given `Rect` with a given `Ratio`.
     - `h_split`: creates a horizontally split view within a given `Rect` with a given `Ratio`.
 - [state](./src/state.rs)
@@ -39,3 +40,6 @@ common stuff.
     - `init`: Initializes the terminal like you normally would.
     - `restore`: Restores the terminal like you normally would.
     - `restore_with_err`: Restores the terminal and prints a given error.
+
+## Tests
+To run the current collection of tests just run `cargo test`.
