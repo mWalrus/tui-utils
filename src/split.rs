@@ -1,6 +1,7 @@
 use tui::layout::{Constraint, Direction, Layout, Rect};
 
 /// Set the percentage ratio for the split
+#[derive(Debug)]
 pub struct Ratio(u16, u16);
 
 impl Default for Ratio {
