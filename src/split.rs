@@ -53,3 +53,41 @@ fn construct_split(re: Rect, ra: Ratio, d: Direction) -> Vec<Rect> {
         .constraints([Constraint::Percentage(ra.0), Constraint::Percentage(ra.1)].as_ref())
         .split(re)
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::split::Ratio;
+
+    #[test]
+    fn normalize_input() {
+        let r = Ratio::new(150, 75);
+        assert!(r.0 + r.1 == 100);
+    }
+
+    #[test]
+    fn zero_zero_should_remain() {
+        let r = Ratio::new(0, 0);
+        assert_eq!(r.0, 0);
+        assert_eq!(r.1, 0);
+    }
+
+    #[test]
+    fn normalize_if_sum_gt_100() {
+        let r = Ratio::new(50, 60);
+        assert!(r.0 + r.1 == 100);
+    }
+    #[test]
+    fn retain_ratio_if_sum_is_100() {
+        let r = Ratio::new(40, 60);
+        assert_eq!(r.0, 40);
+        assert_eq!(r.1, 60);
+        assert!(r.0 + r.1 == 100);
+    }
+    #[test]
+    fn retain_ratio_if_lt_100() {
+        let r = Ratio::new(20, 20);
+        assert_eq!(r.0, 20);
+        assert_eq!(r.1, 20);
+        assert!(r.0 + r.1 == 40);
+    }
+}
