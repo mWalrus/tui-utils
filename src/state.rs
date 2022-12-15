@@ -13,7 +13,17 @@ pub struct Boundary(usize, usize);
 
 impl<T> From<&Vec<T>> for Boundary {
     fn from(s: &Vec<T>) -> Self {
-        Self(0, s.len() - 1)
+        if s.is_empty() {
+            Self(0, 0)
+        } else {
+            Self(0, s.len() - 1)
+        }
+    }
+}
+
+impl Boundary {
+    pub fn is_empty(&self) -> bool {
+        self.0 == 0 && self.1 == 0
     }
 }
 
@@ -151,6 +161,13 @@ impl BoundedState {
     /// Update the boundary definition using a `Vec<T>`
     pub fn update_boundary_from_vec<T>(&mut self, v: &Vec<T>) {
         self.boundary = Boundary::from(v);
+
+        // we don't want to select something if there is nothing to select
+        if self.boundary.is_empty() {
+            self.inner.select(None);
+            return;
+        }
+
         if let Some(s) = self.inner.selected() {
             if s < self.boundary.0 {
                 self.inner.select(Some(self.boundary.0));
@@ -274,5 +291,20 @@ mod tests {
         state.update_boundary_from_vec(&v);
 
         assert!(state.inner.selected().unwrap() <= v.len() - 1);
+    }
+
+    #[test]
+    fn empty_boundary_should_deselect() {
+        let v = vec![1, 2, 3, 4, 5, 6];
+        let boundary = Boundary::from(&v);
+        let mut state = BoundedState::new(boundary, StateWrap::Enable);
+
+        state.last();
+        assert_eq!(state.inner.selected(), Some(5));
+
+        let new_v: Vec<u8> = vec![];
+        state.update_boundary_from_vec(&new_v);
+
+        assert!(state.inner.selected().is_none());
     }
 }
