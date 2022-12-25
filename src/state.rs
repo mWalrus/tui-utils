@@ -51,6 +51,12 @@ impl Default for StateWrap {
     }
 }
 
+impl Default for BoundedState {
+    fn default() -> Self {
+        Self::new(Boundary::default(), StateWrap::default())
+    }
+}
+
 impl BoundedState {
     /// Creates a `BoundedState` with boundaries and optional wrapping configuration
     pub fn new(boundary: Boundary, wrap: StateWrap) -> Self {
