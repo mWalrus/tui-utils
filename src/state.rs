@@ -8,13 +8,13 @@ pub enum StateError {
 }
 
 /// Define a boundary which is to be used with `BoundedState`
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Default)]
 pub struct Boundary(usize, usize);
 
 impl<T> From<&Vec<T>> for Boundary {
     fn from(s: &Vec<T>) -> Self {
         if s.is_empty() {
-            Self(0, 0)
+            Self::default()
         } else {
             Self(0, s.len() - 1)
         }
