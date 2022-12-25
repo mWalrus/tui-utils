@@ -75,8 +75,13 @@ impl BoundedState {
 
     /// Retrieve a mutable reference to the inner `ListState`. This is useful for when you need to
     /// use the `ListState` for drawing a stateful widget.
-    pub fn inner(&mut self) -> &mut ListState {
+    pub fn inner_mut(&mut self) -> &mut ListState {
         &mut self.inner
+    }
+
+    /// Retrieve a immutable reference to the inner `ListState`.
+    pub fn inner(&self) -> &ListState {
+        &self.inner
     }
 
     pub fn next(&mut self) {
