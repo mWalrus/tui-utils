@@ -9,6 +9,10 @@ pub mod state;
 pub mod style;
 pub mod term;
 
+pub mod shared {
+    pub use shared_derive::Shared;
+}
+
 /// Used for event polling with crossterm
 pub(crate) static EVENT_TIMEOUT: Duration = Duration::from_millis(1000);
 /// Default highlight symbol
