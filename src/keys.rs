@@ -1,6 +1,5 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use serde::{Deserialize, Serialize};
-pub use shared_derive::Shared;
 use std::rc::Rc;
 
 /// Creates a `Rc` wrapper around your keymap which allows you to
@@ -46,7 +45,7 @@ impl ToString for Keybind {
             KeyCode::Char(c) => c,
             KeyCode::Tab => '\u{21e5}',
             KeyCode::BackTab => '\u{21e4}',
-            KeyCode::Esc => '\u{328b}',
+            KeyCode::Esc => '\u{238b}',
             KeyCode::Enter => '\u{23ce}',
             KeyCode::Up => '\u{2191}',
             KeyCode::Down => '\u{2193}',
