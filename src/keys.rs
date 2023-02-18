@@ -42,22 +42,21 @@ impl From<&Keybind> for KeyEvent {
 impl ToString for Keybind {
     fn to_string(&self) -> String {
         let key = match self.code {
-            KeyCode::Char(c) if c == ' ' => '˽',
+            KeyCode::Char(c) if c == ' ' => '\u{23b5}',
             KeyCode::Char(c) => c,
-            KeyCode::Tab => '⇥',
-            KeyCode::BackTab => '⇤',
-            KeyCode::Esc => '⎋',
-            KeyCode::Enter => '⏎',
-            KeyCode::Up => '🡹',
-            KeyCode::Down => '🡻',
-            KeyCode::Left => '🡸',
-            KeyCode::Right => '🡺',
-            // unsupported characters
-            _ => 'ⓧ',
+            KeyCode::Tab => '\u{21e5}',
+            KeyCode::BackTab => '\u{21e4}',
+            KeyCode::Esc => '\u{328b}',
+            KeyCode::Enter => '\u{23ce}',
+            KeyCode::Up => '\u{2191}',
+            KeyCode::Down => '\u{2193}',
+            KeyCode::Left => '\u{2190}',
+            KeyCode::Right => '\u{2192}',
+            _ => '\u{2327}',
         };
         match self.modifiers {
             KeyModifiers::SHIFT if self.code == KeyCode::BackTab => key.to_string(),
-            KeyModifiers::SHIFT => format!("⇪{key}"),
+            KeyModifiers::SHIFT => format!("\u{21e7}{key}"),
             KeyModifiers::CONTROL => format!("^{key}"),
             _ => key.to_string(),
         }
