@@ -91,7 +91,7 @@ impl Component for View {
             .highlight_symbol(LIST_HIGHLIGHT_SYMBOL);
 
         // render the widget with the state
-        f.render_stateful_widget(list, size, self.state.inner());
+        f.render_stateful_widget(list, size, self.state.inner_mut());
 
         // to_string each keybind and create a formatted string from them
         let keybind_items: Vec<ListItem> = vec![
