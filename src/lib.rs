@@ -10,6 +10,8 @@ pub mod style;
 pub mod term;
 
 pub mod shared {
+    use std::rc::Rc;
+
     pub use shared_derive::Shared;
     /// Creates a `Rc` wrapper around your keymap which allows you to
     /// take a reference to a single allocated instance of your keymap.

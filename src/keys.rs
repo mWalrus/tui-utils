@@ -1,6 +1,5 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use serde::{Deserialize, Serialize};
-use std::rc::Rc;
 
 // Carbon copy of crossterm's `KeyEvent` which allows for easier construction and also easy comparison when input handling.
 #[derive(Deserialize, Serialize, Debug)]
