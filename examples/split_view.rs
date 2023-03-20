@@ -1,6 +1,6 @@
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use ratatui::{backend::Backend, style::Color, widgets::Paragraph, Frame};
 use std::error::Error;
-use tui::{style::Color, widgets::Paragraph};
 use tui_utils::{
     blocks,
     component::Component,
@@ -46,7 +46,7 @@ struct Split {
 
 impl Component for Split {
     type Message = AppMessage;
-    fn draw<B: tui::backend::Backend>(&mut self, f: &mut tui::Frame<B>, _dim: bool) {
+    fn draw<B: Backend>(&mut self, f: &mut Frame<B>, _dim: bool) {
         // define a new ratio of 50/50
         let ratio = Ratio::new(50, 50);
         // create a vertical split using the frame size and ratio

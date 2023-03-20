@@ -1,4 +1,6 @@
-use tui::layout::{Constraint, Direction, Layout, Rect};
+use std::rc::Rc;
+
+use ratatui::layout::{Constraint, Direction, Layout, Rect};
 
 /// Set the percentage ratio for the split
 #[derive(Debug)]
@@ -38,16 +40,16 @@ impl Ratio {
 }
 
 /// Generate a vertically split layout in a rect with a defined ratio
-pub fn v_split(rect: Rect, ratio: Ratio) -> Vec<Rect> {
+pub fn v_split(rect: Rect, ratio: Ratio) -> Rc<[Rect]> {
     construct_split(rect, ratio, Direction::Horizontal)
 }
 
 /// Generate a horizontally split layout in a rect with a defined ratio
-pub fn h_split(rect: Rect, ratio: Ratio) -> Vec<Rect> {
+pub fn h_split(rect: Rect, ratio: Ratio) -> Rc<[Rect]> {
     construct_split(rect, ratio, Direction::Vertical)
 }
 
-fn construct_split(re: Rect, ra: Ratio, d: Direction) -> Vec<Rect> {
+fn construct_split(re: Rect, ra: Ratio, d: Direction) -> Rc<[Rect]> {
     Layout::default()
         .direction(d)
         .constraints([Constraint::Percentage(ra.0), Constraint::Percentage(ra.1)].as_ref())
