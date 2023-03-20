@@ -9,8 +9,10 @@ use std::{error::Error, rc::Rc};
 use tui_utils::{
     blocks::{self, Dim},
     component::Component,
-    keys::{key_match, Keybind, Shared},
-    rect, term,
+    keys::{key_match, Keybind},
+    rect,
+    shared::Shared,
+    term,
 };
 
 // Example of how to define keybinds.
@@ -69,8 +71,8 @@ struct Modal {
 
 impl Component for Main {
     type Message = AppMessage;
-    fn draw<B: Backend>(&mut self, f: &mut Frame<B>, dim: bool) {
-        let p = Paragraph::new("This is the main component")
+    fn draw<B: tui::backend::Backend>(&mut self, f: &mut tui::Frame<B>, dim: bool) {
+        let p = Paragraph::new("This is the main component. Press space to open modal.")
             .block(blocks::default_block("Main", Color::White).dim(dim));
         f.render_widget(p, f.size());
     }
