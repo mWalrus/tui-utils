@@ -1,5 +1,5 @@
+use ratatui::widgets::ListState;
 use thiserror::Error;
-use tui::widgets::ListState;
 
 #[derive(Error, Debug)]
 pub enum StateError {

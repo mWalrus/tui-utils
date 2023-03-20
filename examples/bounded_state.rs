@@ -1,10 +1,12 @@
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-use std::error::Error;
-use tui::{
+use ratatui::{
+    backend::Backend,
     layout::Rect,
     style::Color,
     widgets::{Clear, List, ListItem},
+    Frame,
 };
+use std::error::Error;
 use tui_utils::{
     blocks,
     component::Component,
@@ -73,7 +75,7 @@ struct View {
 
 impl Component for View {
     type Message = AppMessage;
-    fn draw<B: tui::backend::Backend>(&mut self, f: &mut tui::Frame<B>, _dim: bool) {
+    fn draw<B: Backend>(&mut self, f: &mut Frame<B>, _dim: bool) {
         // get the size of the frame
         let size = f.size();
 

@@ -1,7 +1,7 @@
 use std::error::Error;
 
 use crossterm::event::KeyEvent;
-use tui::{backend::Backend, Frame};
+use ratatui::{backend::Backend, Frame};
 
 /// Trait for implementing components
 pub trait Component {

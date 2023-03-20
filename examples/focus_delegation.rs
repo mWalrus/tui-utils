@@ -1,9 +1,11 @@
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-use std::{error::Error, rc::Rc};
-use tui::{
+use ratatui::{
+    backend::Backend,
     style::Color,
     widgets::{Clear, Paragraph},
+    Frame,
 };
+use std::{error::Error, rc::Rc};
 use tui_utils::{
     blocks::{self, Dim},
     component::Component,
@@ -89,7 +91,7 @@ impl Component for Main {
 
 impl Component for Modal {
     type Message = AppMessage;
-    fn draw<B: tui::backend::Backend>(&mut self, f: &mut tui::Frame<B>, _dim: bool) {
+    fn draw<B: Backend>(&mut self, f: &mut Frame<B>, _dim: bool) {
         let rect = rect::centered_rect(f.size());
         let p =
             Paragraph::new("This is the modal").block(blocks::default_block("Modal", Color::White));

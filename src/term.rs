@@ -3,11 +3,11 @@ use crossterm::event::{self, Event};
 use crossterm::terminal::{
     disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
 };
+use ratatui::backend::CrosstermBackend;
+use ratatui::Terminal;
 use std::error::Error;
 use std::io;
 use thiserror::Error;
-use tui::backend::CrosstermBackend;
-use tui::Terminal;
 
 #[derive(Error, Debug)]
 pub enum TermError {
